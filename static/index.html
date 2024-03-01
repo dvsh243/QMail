@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Sender</title>
+</head>
+<body>
+    <h1>Email Sender</h1>
+    <form id="emailForm">
+        <label for="subject">Subject:</label>
+        <input type="text" id="subject" name="subject" required><br>
+        <label for="body">Body:</label>
+        <textarea id="body" name="body" required></textarea><br>
+        <label for="emails">Email Addresses:</label>
+        <div id="emailInputs">
+            <input type="email" id="email1" name="emails[]" required>
+            <button type="button" id="addEmailButton">+</button>
+        </div>
+        <br>
+        <button type="submit">Send Email</button>
+        <div id="response"></div>
+    </form>
+
+    <script>
+        const emailInputsDiv = document.getElementById('emailInputs');
+        const addEmailButton = document.getElementById('addEmailButton');
+
+        addEmailButton.addEventListener('click', () => {
+            const newEmailInput = document.createElement('input');
+            newEmailInput.type = 'email';
+            newEmailInput.name = 'emails[]';
+            newEmailInput.required = true;
+            emailInputsDiv.appendChild(newEmailInput);
+        });
+
+        const emailForm = document.getElementById('emailForm');
+        const responseDiv = document.getElementById('response');
+        
+        emailForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(emailForm);
+            const subject = formData.get('subject');
+            const body = formData.get('body');
+            const emails = Array.from(formData.getAll('emails[]'));
+
+            const data = {
+                subject,
+                body,
+                recv_addrs: emails,
+            };
+
+            fetch('http://0.0.0.0:8000/api/create', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            })
+            .then(response => response.json())
+            .then(data => {
+                responseDiv.textContent = JSON.stringify(data, null, 2);  // Pretty print response
+                console.log('Success:', data);
+            })
+            .catch(error => {
+                responseDiv.textContent = `Error: ${error.message}`;
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
