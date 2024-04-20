@@ -53,4 +53,5 @@ async def create_campaign(
 
 
 if __name__ == "__main__":
+    # go to `http://0.0.0.0:8000/app`, localhost:8000/app gives CORS error
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=False)
